@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test $lib</title>
+</head>
+<body>
+<h1 id="he">Hello, World and {lib}</h1>
+<img id="logo">
+<p>Open devTools, and check new lib $ from Vsevolodhtml</p>
+<button class="btn" onclick="console.log('click');">alert</button>
+<textarea id="area" style="display: none;">123</textarea>
+{a}{g}{5}{a}{a}
+{title} - {description}{5}{a}{a}
+<a href="{title}" title="{description}">{title}</a><br>
+<script src="lib.js"></script>
+<script>
+//Тесты
+let logo = $.find('#logo');
+$.rem('#logo');
+$.popup('#area');
+$.hide('#he');
+$.show('#he');
+$.log(123);
+$.info('#he');
+$.logimg('https://avatars.mds.yandex.net/get-zen_doc/1589334/pub_5f6239001ccbe428a6054620_5f62411d6f388e770c142af9/scale_1200');
+$.click('.btn');
+$.text('.btn', 'alert =3');
+$.add('.btn', 'btnf');
+document.body.innerHTML = $.rnd({
+  lib: "$lib",
+  title: "JS",
+  description: "Is top"
+});
+$.js('test.js');
+$.css('test.css');
+</script>
+</body>
+</html>
