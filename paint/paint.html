@@ -1,0 +1,134 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+<div class="container">
+  <canvas id='canvas' width="900" height="700">Ваш браузер устарел!</canvas>
+  <div id="palette">
+      <div>Изменить толщину:</div>
+      <input type='range' min="1" max="20" step="0.5" value="2.5" id="rng">
+      <div>Свой цвет(#ddd3dd):</div>
+      <input type="text" id="rnt" placeholder="#000000">
+      <div>Палитра:</div>
+    </div>
+  <div id="clear">Очистить изображение</div>
+  <div id="download">Скачать изображение</div>
+</div>
+<style>
+* {box-sizing: border-box;}
+input {width: 100%;}
+.button {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  padding: 1px;
+  cursor: pointer;
+  border: solid 1px #fff;
+}
+ 
+.button:hover {
+  border: solid 1px #f00;
+}
+ 
+.button:active {
+  border: solid 1px #ff0;
+}
+#palette, #canvas, #clr {
+  display: inline-block;
+  border: solid 1px #aaa;
+  cursor: default;
+  vertical-align: top;
+}
+ 
+#palette {
+  width: calc(100% - 900px);
+  float: right;
+  min-height: 700px;
+  padding: 10px;
+}
+#canvas {
+    width: 900px;
+}
+ 
+#clear, #download {
+  background: #eee;
+  color: rgb(102, 102, 102);
+  padding: 10px;
+  width: 200px;
+  text-align: center;
+  margin: 15px auto;
+  cursor: pointer;
+}
+ 
+.container {
+   white-space: normal;
+   width: 100%;
+}
+</style>
+<script>
+var canvas = document.getElementById("canvas");
+// Инициализируем переменные
+// Генерируем палитру в элемент #palette
+generatePalette(document.getElementById("palette"));
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+
+// переменные для рисования
+context.lineCap = "round";
+context.lineWidth = 2;
+rnt.oninput = function() {
+    palettef(palette, this.value);;
+}
+rng.oninput = function() {
+    context.lineWidth = this.value;
+}
+document.getElementById("clear").onclick = function clear() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+};
+document.getElementById("download").onclick = function download() {
+    canvas.toBlob(function(blob) {
+        saveAs(blob, "макет.png");
+    });
+};
+// На любое движение мыши по canvas будет выполнятся эта функция
+canvas.onmousemove = function drawIfPressed (e) {
+  // в "e"  попадает экземпляр MouseEvent
+  var x = e.offsetX;
+  var y = e.offsetY;
+  var dx = e.movementX;
+  var dy = e.movementY;
+
+  // Проверяем зажата ли какая-нибудь кнопка мыши
+  // Если да, то рисуем
+  if (e.buttons > 0) {
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(x - dx, y - dy);
+    context.stroke();
+    context.closePath();
+  }
+};
+
+function palettef(palette, color) {
+    var paletteBlock = document.createElement('div');
+    paletteBlock.className = 'button';
+    paletteBlock.addEventListener('click', function changeColor(e) {
+      context.strokeStyle = e.target.style.backgroundColor;
+    });
+
+    paletteBlock.style.backgroundColor = (
+      '#' + color
+    );
+    palette.appendChild(paletteBlock);
+}
+function generatePalette(palette) {
+    color = '000000'
+    palettef(palette, color);
+    color = 'ffffff'
+    palettef(palette, color);
+    color = 'a3a3a3'
+    palettef(palette, color);
+    color = '525252'
+    palettef(palette, color);
+    color = '4157a6'
+    palettef(palette, color);
+}
+</script>
