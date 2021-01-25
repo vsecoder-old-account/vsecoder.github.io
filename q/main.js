@@ -227,9 +227,7 @@ function Update () {
     highscore = score;
     highscoreText.t = "Надо: 6000";
   }
-  if (score >= 6 && score < 7) {
-    alert();
-    var protoUrl = "tg:\/\/resolve?domain=codequestionbot";
+  if (score >= 6000 && score < 6001) {
     window.location = "table.html";
   }
   
