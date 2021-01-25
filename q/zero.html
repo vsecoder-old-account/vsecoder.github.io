@@ -1,0 +1,10 @@
+<script>
+var html = document.body.innerHTML;  // <-- HTML web page 
+html = html.replace(/\s{2,}/g, '')   // <-- Replace all consecutive spaces, 2+
+           .replace(/%/g, '%25')     // <-- Escape %
+           .replace(/&/g, '%26')     // <-- Escape &
+           .replace(/#/g, '%23')     // <-- Escape #
+           .replace(/"/g, '%22')     // <-- Escape "
+           .replace(/'/g, '%27');    // <-- Escape ' (to be 100% safe)
+var dataURI = 'data:text/html;charset=UTF-8,' + html;
+</script>
