@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<title>Лабиринт</title>
+</head>
+<body>
+	<button id="restart-btn">Restart</button>
+	<div id="maze"></div>
+	<div id="warning"><b>Click here</b> to focus the window,<br>and use the arrow keys to move.</div>
+	<!-- скрипт, который создаёт лабиринт -->
+	<script type="text/javascript" src="lib/pathfinding-browser.min.js"></script>
+	<script>
+		// строим карту нового лабиринта
+		function generateMaze (columnsNumber, rowsNumber) {
+			// карта лабиринта, на старте пустая
+			const map = [];
+		
+			// сначала заполняем все ячейки карты стенами
+			for (let y = 0; y < rowsNumber; y++) {
+				// в цикле создаём сначала пустой массив — строку
+				const row = [];
+				// и заполняем её ячейками с пометкой «стена» столько раз, сколько у нас столбцов
+				for (let x = 0; x < columnsNumber; x++) {
+					row.push(1);
+				};
+				// как только собрали очередную строку, отправляем её в массив с картой
+				map.push(row);
+			}
+		
+			// функция проверяет четное число или нет, и если чётное — возвращает true
+			function isEven (n) {
+				return n % 2 === 0;
+			}
+		
+			// функция возвращает случайный элемент из переданного ей массива
+			function getRandomFrom (array) {
+				// получаем случайным образом индекс элемента массива
+				// число будет в диапазоне от 0 до количества элементов в массиве - 1
+				const index = Math.floor(Math.random() * array.length);
+				// возвращаем элемент массива с полученным случайным индексом
+				return array[index];
+			}
+		
+			// выбираем случайным образом чётные координаты на карте с лабиринтом
+			const startX = getRandomFrom(Array(columnsNumber).fill(0).map((item, index) => index).filter(x => isEven(x)));
+			const startY = getRandomFrom(Array(rowsNumber).fill(0).map((item, index) => index).filter(x => isEven(x)));
+		
+			// трактор, который будет очищать дорожки в лабиринте
+			var tractor = {};
+			// ставим его на чётную клетку
+			tractor.x = startX;
+			tractor.y = startY;
+		
+			// функция — записать значение ячейки в карту по координатам
+			function setField (x, y, value) {
+				// если координаты выходят за границы карты с лабиринтом
+				if (x < 0 || x >= columnsNumber || y < 0 || y >= rowsNumber) {
+					// прекращаем работу функции и возвращаем пустое значение
+					return null;
+				};
+				// если дошли до сюда, значит с координатами всё в порядке и мы записываем значение ячейки по нашим 		координатам
+				map[y][x] = value;
+			}
+		
+			// сделаем ячейку, в которой стоит трактор, пустой
+			setField(startX, startY, 0);
+		
+			// функция проверяет, готов лабиринт или ещё нет
+			// возвращает true, если лабиринт готов, false если ещё нет
+			function isMaze () {
+				// во вложенном цикле проверяем по очереди все ячейки карты
+				for (let x = 0; x < columnsNumber; x++) {
+					for (let y = 0; y < rowsNumber; y++) {
+						// если на чётных местах ещё можно встретить стену, 
+						if (isEven(x) && isEven(y) && getField(x, y) === 1) {
+							// то карта с лабиринтом не готова
+							return false;
+						}
+					}
+				}
+				// а если мы дошли до сюда и функция не прервалась на предыдущей проверке, то лабиринт готов
+				
+				// рисуем лабиринт в консоли
+				// переменные для отрисовки строк и границ
+				var s,d = '';
+				// рисуем верхннюю границу лабиринта
+				for (var i = 0; i < columnsNumber; i++) {
+					d = d + 1;
+				}
+				// рисуем каждую строку
+				for (var i = 0; i < rowsNumber; i++) {
+					s = '';
+					for (var j = 0; j < columnsNumber; j++) {
+						s = s + map[i][j];
+					}
+				}
+				// рисуем нижнюю границу лабиринта 
+				return true;
+			}
+		
+			// пока лабиринт не готов, отправляем трактор двигаться дальше
+			while (!isMaze()) {
+				moveTractor();
+			}
+		
+			c = columnsNumber - 2
+			r = rowsNumber - 2
+			//map[2][2] = '>';
+			//map[c][r] = '$';
+			// если предыдущий цикл закончился, то заканчиваем общую работу скрипта и возвращаем готовую карту
+			return map;
+		
+		
+			// получить значение ячейки из карты по координатам
+			function getField (x, y) {
+				// если координаты выходят за границы карты с лабиринтом
+				if (x < 0 || x >= columnsNumber || y < 0 || y >= rowsNumber) {
+					// прекращаем работу функции и возвращаем пустое значение
+					return null;
+				}
+				// если дошли до сюда, значит с координатами всё в порядке и мы возвращаем значение ячейки по нашим 		координатам
+				return map[y][x];
+			}
+		
+		
+			// двигаем трактор, который расчищает лабиринт
+			// трактор двигается на 2 клетки, и если вторая клетка — это стена, то очищаем обе
+			function moveTractor () {
+				// массив с возможными направлениями трактора
+				const directs = [];
+				// если есть место слева
+				if (tractor.x > 0) {
+					// помечаем, что можно идти налево
+					directs.push('left');
+				};
+		
+				// если есть место справа
+				if (tractor.x < columnsNumber - 2) {
+					// помечаем, что можно идти направо
+					directs.push('right');
+				};
+		
+				// если есть место сверху	
+				if (tractor.y > 0) {
+					// помечаем, что можно идти наверх
+					directs.push('up');
+				};
+		
+				// если есть место внизу	
+				if (tractor.y < rowsNumber - 2) {
+					// помечаем, что можно идти вниз
+					directs.push('down');
+				};
+		
+				// случайным образом выбираем направление, в котором можно пойти
+				const direct = getRandomFrom(directs);
+		
+				//  в зависимости от выбранного направления, обрабатываем клетки
+				switch (direct) {
+					case 'left':
+						// если через 2 ячейки стена, то очищаем обе
+						if (getField(tractor.x - 2, tractor.y) === 1) {
+							setField(tractor.x - 1, tractor.y, 0);
+							setField(tractor.x - 2, tractor.y, 0);
+						};
+						// меняем координату трактора
+						tractor.x -= 2;
+						break;
+					case 'right':
+						// если через 2 ячейки стена, то очищаем обе
+						if (getField(tractor.x + 2, tractor.y) === 1) {
+							setField(tractor.x + 1, tractor.y, 0);
+							setField(tractor.x + 2, tractor.y, 0);
+						};
+						// меняем координату трактора
+						tractor.x += 2;
+						break;
+					case 'up':
+						// если через 2 ячейки стена, то очищаем обе
+						if (getField(tractor.x, tractor.y - 2) === 1) {
+							setField(tractor.x, tractor.y - 1, 0);
+							setField(tractor.x, tractor.y - 2, 0);
+						};
+						// меняем координату трактора
+						tractor.y -= 2
+						break;
+					case 'down':
+						// если через 2 ячейки стена, то очищаем обе
+						if (getField(tractor.x, tractor.y + 2) === 1) {
+							setField(tractor.x, tractor.y + 1, 0);
+							setField(tractor.x, tractor.y + 2, 0);
+						};
+						// меняем координату трактора
+						tractor.y += 2;
+						break;
+				}
+			}
+		
+		}
+	</script>
+	<script>
+		function autoPlay() {
+			w = 10
+			h = 10
+			var matrix = generateMaze(10,10);
+			console.log(matrix)
+			var grid = new PF.Grid(w, h, matrix);
+			var finder = new PF.AStarFinder();
+			var path = finder.findPath(2, 2, 8, 8, grid);
+			console.log(path);
+		}
+		autoPlay()
+	</script>
+<style type="text/css">
+	#warning { position: fixed; background: rgba(255, 255, 255, 0.8); top: 0; left: 0; width: 100%; height: 100%; 	padding: 30px; text-align: center; font-size: 20px; font-family: Arial, Helvetica, sans-serif; }
+	#maze { position: relative;  }
+	.row { clear: both; }
+	.block {
+	  width: 10px;
+	  height: 10px;
+	  background: #f2f2f2;
+	  float: left;
+	}
+	.block.wall { background: #ccc; transition: background .2s ease; }
+	.red .block.wall { background: #d8a2a2; }
+	.block.start { background: #45aed6; }
+	.block.finish { background: #44ffc2; }
+	.player {
+	  position: absolute;
+	  transition: left .2s ease, top .2s ease;
+	  width: 10px;
+	  height: 10px;
+	  background: #f00;
+	  border-radius: 10px;
+	}
+	.player.bump-left { width: 8px; }
+	.player.bump-up { height: 8px; }
+	.player.bump-right { width: 8px; margin-left: 2px; }
+	.player.bump-down { height: 8px; margin-top: 2px; }
+</style>
+</body>
+</html>
